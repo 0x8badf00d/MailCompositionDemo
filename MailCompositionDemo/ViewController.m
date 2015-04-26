@@ -7,21 +7,52 @@
 //
 
 #import "ViewController.h"
+@import MessageUI;
 
-@interface ViewController ()
+@interface ViewController ()<MFMailComposeViewControllerDelegate>
+@property (nonatomic,strong) UIButton *sendMailBtn;
 
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    self.sendMailBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [self.sendMailBtn setTitle:@"Send Mail" forState:UIControlStateNormal];
+    [self.sendMailBtn setFrame:CGRectMake(0, 0, 150, 40)];
+    [self.sendMailBtn addTarget:self action:@selector(sendMailAction) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.view addSubview:self.sendMailBtn];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)viewWillLayoutSubviews
+{
+    [self.sendMailBtn setCenter:self.view.center];
+}
+
+- (void)sendMailAction
+{
+    MFMailComposeViewController *mailComposeVC = [[MFMailComposeViewController alloc] init];
+    [mailComposeVC setMailComposeDelegate:self];
+    mailComposeVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [mailComposeVC setSubject:@"Test Subject"];
+    
+    [self presentViewController:mailComposeVC animated:YES completion:nil];
+}
+
+#pragma mark - MFMailComposeViewController Delegate method(s)
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+    if(error)
+    {
+        [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"%@",[error localizedDescription]] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil] show];
+    }
+    
+    [controller dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end
